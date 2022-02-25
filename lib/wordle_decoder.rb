@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "cli/ui"
+
 require_relative "wordle_decoder/version"
 require_relative "wordle_decoder/word_guess"
 require_relative "wordle_decoder/word"
@@ -19,22 +21,38 @@ class WordleDecoder
   # TODO: remove guess words that gave the same yellow letters at the same indexes
   # TODO: remove guesses that have missed letters that must overlap with a guess from a previous row
 
-  def gues ses
+  def guesses
     last_line_green_letter = []
     word_guesses.each do |guess|
     end
   end
 
   def guess_stats
-    stats = +"\n#{@answer_string.rjust(16)}\n"
+    stats = +"\n#{colorized_answer}\n"
     word_guesses.each do |word_guess|
-      words = word_guess.guessable_words
+      words = word_guess.guessable_words.map { |word| colorize_word(word) }
       stats << " #{word_guess.guessable_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
     end
-    puts stats
+    puts CLI::UI.fmt(stats)
   end
 
   private
+
+  def colorized_answer
+    "{{green:#{@answer_string.rjust(16)}}}"
+  end
+
+  def colorize_word(word)
+    word.each_char.with_index.map do |char, index|
+      if char == @answer_string[index]
+        "{{green:#{char}}}"
+      elsif @answer_string.include?(char)
+        "{{yellow:#{char}}}"
+      else
+        char
+      end
+    end.join
+  end
 
   def initialize_word_guesses(answer_string, hint_string)
     answer_string = answer_string.downcase

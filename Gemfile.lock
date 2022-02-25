@@ -2,11 +2,13 @@ PATH
   remote: .
   specs:
     wordle_decoder (0.1.0)
+      cli-ui (~> 1.5)
 
 GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.2)
+    cli-ui (1.5.1)
     minitest (5.15.0)
     parallel (1.21.0)
     parser (3.1.0.0)
