@@ -14,7 +14,7 @@ class WordleDecoder
 
     BASE_INCONFIDENCE = 0.05
 
-    def guessable_score
+    def confidence_score
       score = (100 * (1.0 / words.count.to_f))
       (score - (score * BASE_INCONFIDENCE)).round
     end

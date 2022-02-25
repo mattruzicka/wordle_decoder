@@ -23,6 +23,10 @@ class WordleDecoder
       @black_chars ||= find_chars(@word_position.black_letter_positions)
     end
 
+    def confidence_score
+      @word_position.confidence_score
+    end
+
     def as_string
       @word_str
     end

@@ -20,10 +20,11 @@ class WordleDecoder
 
   def best_guess
     game_guess = game_guesses.max_by(&:score)
-    best_guess = +"  "
-    best_guess << game_guess.best_words.join("\n  ")
-    best_guess << +"\n  #{colorize_answer}\n"
-
+    best_guess = +"  {{underline:GUESSES}}   {{underline:CONFIDENCE SCORE}}\n\n"
+    game_guess.best_words_with_scores_2d_array.each do |best_word, confidence_score|
+      best_guess << "  #{best_word}     #{confidence_score}\n"
+    end
+    best_guess << "  {{green:#{@answer_str}}}\n"
     puts CLI::UI.fmt(best_guess)
   end
 
@@ -34,20 +35,16 @@ class WordleDecoder
     end
   end
 
-  def guess_stats
-    stats = +"\n#{colorize_answer(@answer_str.rjust(16))}\n"
+  def searched_words
+    stats = +"\n  {{green:#{@answer_str}}}\n"
     word_positions.each do |word_position|
       words = word_position.words
-      stats << " #{word_position.guessable_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
+      stats << "  #{words.join(", ")}\n"
     end
     puts CLI::UI.fmt(stats)
   end
 
   private
-
-  def colorize_answer(text = nil)
-    "{{green:#{text || @answer_str}}}"
-  end
 
   def initialize_word_positions(answer_str, hint_str)
     answer_str = answer_str.downcase
