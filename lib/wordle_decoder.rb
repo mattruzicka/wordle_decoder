@@ -8,13 +8,19 @@ class WordleDecoder
   class Error < StandardError; end
 
   def initialize(answer_string, hint_string)
+    @answer_string = answer_string
     @word_guesses = initialize_word_guesses(answer_string, hint_string)
   end
 
   attr_reader :word_guesses
 
-  def words
-    @word_guesses.map(&:to_s)
+  def guess_stats
+    stats = +"\n#{@answer_string.rjust(16)}\n"
+    word_guesses.each do |word_guess|
+      words = word_guess.guessable_words
+      stats << " #{word_guess.confidence_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
+    end
+    puts stats
   end
 
   private

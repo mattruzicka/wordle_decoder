@@ -8,16 +8,29 @@ class WordleDecoder
 
     attr_reader :letter_guesses
 
-    def to_s
-      "#{guessable_words.join(",")} | #{guessable_words.count} | #{confidence_score}"
-    end
-
     def guessable_words
       @guessable_words ||= compute_guessable_words
     end
 
+    BASE_INCONFIDENCE = 0.05
+
     def confidence_score
-      1 / guessable_words.count.to_f
+      score = (100 * (1.0 / guessable_words.count.to_f))
+      (score - (score * BASE_INCONFIDENCE)).round
+    end
+
+    # TODO: if word guess has green chars, previous
+    # word guesses are more likely to have those green chars
+    # as yellow chars
+
+    def known_letters_with_indexes
+      letters_grouped_by_hint_char["g"]&.map do |letter|
+        [letter.answer_char, letter.index]
+      end
+    end
+
+    def yellow_letter_indexes
+      letters_grouped_by_hint_char["y"]&.map(&:index)
     end
 
     private
@@ -39,7 +52,7 @@ class WordleDecoder
     end
 
     def remove_not_guessable_words(words)
-      letters_grouped_by_hint_char["b"].each do |letter|
+      letters_grouped_by_hint_char["b"]&.each do |letter|
         words -= letter.not_guessable_words
       end
       words
@@ -78,7 +91,9 @@ class WordleDecoder
         @answer_char = @answer_chars[index]
       end
 
-      attr_reader :hint_char
+      attr_reader :hint_char,
+                  :answer_char,
+                  :index
 
       def guessable_words
         case hint_char
