@@ -3,7 +3,8 @@
 require "cli/ui"
 
 require_relative "wordle_decoder/version"
-require_relative "wordle_decoder/word_guess"
+require_relative "wordle_decoder/game_guess"
+require_relative "wordle_decoder/word_position"
 require_relative "wordle_decoder/word"
 
 class WordleDecoder
@@ -11,35 +12,42 @@ class WordleDecoder
 
   def initialize(answer_str, hint_str)
     @answer_str = answer_str
-    @word_guesses = initialize_word_guesses(answer_str, hint_str)
+    @word_positions = initialize_word_positions(answer_str, hint_str)
   end
 
-  attr_reader :word_guesses
+  attr_reader :word_positions
 
-  # TODO: rewards words that have yellow letters that match green letters in later words
-  # TODO: reward guess words that have letters that were yellow in previous words in different indexes.
-  # TODO: remove guess words that gave the same yellow letters at the same indexes
-  # TODO: remove guesses that have missed letters that must overlap with a guess from a previous row
+  def best_guess
+    game_guess = potential_game_guesses.max_by(&:score)
+    best_guess = +"\n #{colorize_answer}\n "
+    best_guess << colorize_words(game_guess.words).join("\n ")
+    puts CLI::UI.fmt(best_guess)
+  end
 
-  def guesses
-    last_line_green_letter = []
-    word_guesses.each do |guess|
+  def potential_game_guesses
+    first_guess, *remaining_guesses = word_positions
+    first_guess.potential_words.map do |start_str|
+      GameGuess.new(start_str, @answer_str, remaining_guesses)
     end
   end
 
   def guess_stats
-    stats = +"\n#{colorized_answer}\n"
-    word_guesses.each do |word_guess|
-      words = word_guess.guessable_words.map { |word| colorize_word(word) }
-      stats << " #{word_guess.guessable_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
+    stats = +"\n#{colorize_answer(@answer_str.rjust(16))}\n"
+    word_positions.each do |word_position|
+      words = colorize_words(word_position.potential_words)
+      stats << " #{word_position.guessable_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
     end
     puts CLI::UI.fmt(stats)
   end
 
   private
 
-  def colorized_answer
-    "{{green:#{@answer_str.rjust(16)}}}"
+  def colorize_answer(text = nil)
+    "{{green:#{text || @answer_str}}}"
+  end
+
+  def colorize_words(words)
+    words.map { |word| colorize_word(word) }
   end
 
   def colorize_word(word)
@@ -54,12 +62,12 @@ class WordleDecoder
     end.join
   end
 
-  def initialize_word_guesses(answer_str, hint_str)
+  def initialize_word_positions(answer_str, hint_str)
     answer_str = answer_str.downcase
     hint_str = hint_str.downcase
     answer_chars = answer_str.split("")
     hint_lines = normalize_hint_lines(hint_str)
-    hint_lines.map { |line| WordGuess.new(line, answer_chars) }
+    hint_lines.map { |line| WordPosition.new(line, answer_chars) }
   end
 
   ANSWER_LINES = ["ggggg", "🟩🟩🟩🟩🟩"].freeze
