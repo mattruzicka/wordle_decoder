@@ -9,9 +9,9 @@ require_relative "wordle_decoder/word"
 class WordleDecoder
   class Error < StandardError; end
 
-  def initialize(answer_string, hint_string)
-    @answer_string = answer_string
-    @word_guesses = initialize_word_guesses(answer_string, hint_string)
+  def initialize(answer_str, hint_str)
+    @answer_str = answer_str
+    @word_guesses = initialize_word_guesses(answer_str, hint_str)
   end
 
   attr_reader :word_guesses
@@ -39,14 +39,14 @@ class WordleDecoder
   private
 
   def colorized_answer
-    "{{green:#{@answer_string.rjust(16)}}}"
+    "{{green:#{@answer_str.rjust(16)}}}"
   end
 
   def colorize_word(word)
     word.each_char.with_index.map do |char, index|
-      if char == @answer_string[index]
+      if char == @answer_str[index]
         "{{green:#{char}}}"
-      elsif @answer_string.include?(char)
+      elsif @answer_str.include?(char)
         "{{yellow:#{char}}}"
       else
         char
@@ -54,18 +54,18 @@ class WordleDecoder
     end.join
   end
 
-  def initialize_word_guesses(answer_string, hint_string)
-    answer_string = answer_string.downcase
-    hint_string = hint_string.downcase
-    answer_chars = answer_string.split("")
-    hint_lines = normalize_hint_lines(hint_string)
+  def initialize_word_guesses(answer_str, hint_str)
+    answer_str = answer_str.downcase
+    hint_str = hint_str.downcase
+    answer_chars = answer_str.split("")
+    hint_lines = normalize_hint_lines(hint_str)
     hint_lines.map { |line| WordGuess.new(line, answer_chars) }
   end
 
   ANSWER_LINES = ["ggggg", "🟩🟩🟩🟩🟩"].freeze
 
-  def normalize_hint_lines(hint_string)
-    hint_lines = hint_string.split("\n")
+  def normalize_hint_lines(hint_str)
+    hint_lines = hint_str.split("\n")
     hint_lines.pop if ANSWER_LINES.include?(hint_lines.last)
     hint_lines.reverse!
   end
