@@ -14,7 +14,7 @@ class WordleDecoder
 
     BASE_INCONFIDENCE = 0.05
 
-    def confidence_score
+    def guessable_score
       score = (100 * (1.0 / guessable_words.count.to_f))
       (score - (score * BASE_INCONFIDENCE)).round
     end
@@ -23,7 +23,7 @@ class WordleDecoder
     # word guesses are more likely to have those green chars
     # as yellow chars
 
-    def known_letters_with_indexes
+    def green_letter_chars_with_index
       letters_grouped_by_hint_char["g"]&.map do |letter|
         [letter.answer_char, letter.index]
       end

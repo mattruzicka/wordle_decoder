@@ -18,7 +18,7 @@ class WordleDecoder
     stats = +"\n#{@answer_string.rjust(16)}\n"
     word_guesses.each do |word_guess|
       words = word_guess.guessable_words
-      stats << " #{word_guess.confidence_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
+      stats << " #{word_guess.guessable_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
     end
     puts stats
   end
