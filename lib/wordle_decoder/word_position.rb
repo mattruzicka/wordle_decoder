@@ -39,8 +39,13 @@ class WordleDecoder
 
     def compute_words
       WordSearch::COMMONALITY_OPTIONS.each do |commonality|
-        words = compute_words_from_hints(commonality) || Decoder.all
-        return words if words.count == 1
+        words = compute_words_from_hints(commonality)
+        case words.count
+        when 1
+          return words
+        when 0
+          next
+        end
 
         remove_not_words(words, commonality)
         return words unless words.empty?

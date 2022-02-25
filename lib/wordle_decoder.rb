@@ -20,11 +20,11 @@ class WordleDecoder
 
   def best_guess
     game_guess = game_guesses.max_by(&:score)
-    best_guess = +"  {{underline:GUESSES}}   {{underline:CONFIDENCE SCORE}}\n\n"
+    best_guess = +"\n  {{underline:GUESSES}}   {{underline:CONFIDENCE SCORE}}\n\n"
     game_guess.best_words_with_scores_2d_array.each do |best_word, confidence_score|
       best_guess << "  #{best_word}     #{confidence_score}\n"
     end
-    best_guess << "  {{green:#{@answer_str}}}\n"
+    best_guess << "  {{green:#{@answer_str}}}\n\n"
     puts CLI::UI.fmt(best_guess)
   end
 
@@ -57,8 +57,25 @@ class WordleDecoder
   ANSWER_LINES = ["ggggg", "🟩🟩🟩🟩🟩"].freeze
 
   def normalize_hint_lines(hint_str)
-    hint_lines = hint_str.split("\n")
+    hint_lines = normalize_hint_lines_array(hint_str)
+    validate_hint_lines!(hint_lines)
     hint_lines.pop if ANSWER_LINES.include?(hint_lines.last)
     hint_lines.reverse!
+  end
+
+  def normalize_hint_lines_array(hint_str)
+    return hint_str unless hint_str.is_a?(String)
+
+    if hint_str.include?("\n")
+      hint_str.split("\n")
+    else
+      hint_str.chars.each_slice(5).map(&:join)
+    end
+  end
+
+  def validate_hint_lines!(hint_lines)
+    return if hint_lines.is_a?(Array) && hint_lines.all? { |line| line.length == 5 }
+
+    raise Error.new("The entered wordle hints are invalid")
   end
 end
