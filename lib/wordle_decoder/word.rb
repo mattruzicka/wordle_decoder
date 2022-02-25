@@ -8,7 +8,7 @@ class WordleDecoder
       end
 
       def with_chars_at_index(chars, index)
-        chars.flat_map { |c| with_char_at_index(c, index) }
+        chars.uniq.flat_map { |c| with_char_at_index(c, index) }
       end
 
       def without_char_at_index(char, index)
