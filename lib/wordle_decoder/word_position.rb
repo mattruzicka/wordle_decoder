@@ -8,14 +8,14 @@ class WordleDecoder
 
     attr_reader :letter_positions
 
-    def potential_words
-      @potential_words ||= compute_potential_words
+    def words
+      @words ||= initialize_words
     end
 
     BASE_INCONFIDENCE = 0.05
 
     def guessable_score
-      score = (100 * (1.0 / potential_words.count.to_f))
+      score = (100 * (1.0 / words.count.to_f))
       (score - (score * BASE_INCONFIDENCE)).round
     end
 
@@ -33,27 +33,31 @@ class WordleDecoder
 
     private
 
-    def compute_potential_words
+    def initialize_words
+      compute_words.map { |str| Word.new(str, self) }
+    end
+
+    def compute_words
       WordSearch::COMMONALITY_OPTIONS.each do |commonality|
-        words = compute_potential_words_from_hints(commonality) || Decoder.all
+        words = compute_words_from_hints(commonality) || Decoder.all
         return words if words.count == 1
 
-        remove_not_potential_words(words, commonality)
+        remove_not_words(words, commonality)
         return words unless words.empty?
       end
     end
 
-    def compute_potential_words_from_hints(commonality)
+    def compute_words_from_hints(commonality)
       words = nil
       [green_letter_positions, yellow_letter_positions].each do |letters|
-        words = filter_by_potential_words(words, letters, commonality) if letters
+        words = filter_by_words(words, letters, commonality) if letters
       end
       words
     end
 
-    def remove_not_potential_words(words, commonality)
+    def remove_not_words(words, commonality)
       black_letter_positions&.each do |letter|
-        words -= letter.not_potential_words(commonality)
+        words -= letter.not_words(commonality)
       end
       words
     end
@@ -62,12 +66,12 @@ class WordleDecoder
       @letter_positions.select { |lg| lg.hint_char == hint_char }
     end
 
-    def filter_by_potential_words(words, letters, commonality)
+    def filter_by_words(words, letters, commonality)
       letters.each do |letter|
         if words
-          words &= letter.potential_words(commonality)
+          words &= letter.words(commonality)
         else
-          words = letter.potential_words(commonality)
+          words = letter.words(commonality)
         end
       end
       words
@@ -95,7 +99,7 @@ class WordleDecoder
                   :answer_char,
                   :index
 
-      def potential_words(commonality)
+      def words(commonality)
         case hint_char
         when "g"
           WordSearch.char_at_index(@answer_char, @index, commonality)
@@ -105,7 +109,7 @@ class WordleDecoder
         end
       end
 
-      def not_potential_words(commonality)
+      def not_words(commonality)
         WordSearch.chars_at_index(@answer_chars, @index, commonality)
       end
     end

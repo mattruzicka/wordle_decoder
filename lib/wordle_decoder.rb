@@ -4,6 +4,7 @@ require "cli/ui"
 
 require_relative "wordle_decoder/version"
 require_relative "wordle_decoder/game_guess"
+require_relative "wordle_decoder/word"
 require_relative "wordle_decoder/word_position"
 require_relative "wordle_decoder/word_search"
 
@@ -18,23 +19,25 @@ class WordleDecoder
   attr_reader :word_positions
 
   def best_guess
-    game_guess = potential_game_guesses.max_by(&:score)
-    best_guess = +"\n #{colorize_answer}\n "
-    best_guess << colorize_words(game_guess.words).join("\n ")
+    game_guess = game_guesses.max_by(&:score)
+    best_guess = +"  "
+    best_guess << game_guess.best_words.join("\n  ")
+    best_guess << +"\n  #{colorize_answer}\n"
+
     puts CLI::UI.fmt(best_guess)
   end
 
-  def potential_game_guesses
-    first_guess, *remaining_guesses = word_positions
-    first_guess.potential_words.map do |start_str|
-      GameGuess.new(start_str, @answer_str, remaining_guesses)
+  def game_guesses
+    first_word_position, *remaining_positions = word_positions
+    first_word_position.words.map do |start_word|
+      GameGuess.new(start_word, remaining_positions)
     end
   end
 
   def guess_stats
     stats = +"\n#{colorize_answer(@answer_str.rjust(16))}\n"
     word_positions.each do |word_position|
-      words = colorize_words(word_position.potential_words)
+      words = word_position.words
       stats << " #{word_position.guessable_score.to_s.ljust(2)} | #{words.count.to_s.ljust(2)} | #{words.join(", ")}\n"
     end
     puts CLI::UI.fmt(stats)
@@ -44,22 +47,6 @@ class WordleDecoder
 
   def colorize_answer(text = nil)
     "{{green:#{text || @answer_str}}}"
-  end
-
-  def colorize_words(words)
-    words.map { |word| colorize_word(word) }
-  end
-
-  def colorize_word(word)
-    word.each_char.with_index.map do |char, index|
-      if char == @answer_str[index]
-        "{{green:#{char}}}"
-      elsif @answer_str.include?(char)
-        "{{yellow:#{char}}}"
-      else
-        char
-      end
-    end.join
   end
 
   def initialize_word_positions(answer_str, hint_str)
