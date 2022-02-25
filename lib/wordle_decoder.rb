@@ -5,7 +5,7 @@ require "cli/ui"
 require_relative "wordle_decoder/version"
 require_relative "wordle_decoder/game_guess"
 require_relative "wordle_decoder/word_position"
-require_relative "wordle_decoder/word"
+require_relative "wordle_decoder/word_search"
 
 class WordleDecoder
   class Error < StandardError; end

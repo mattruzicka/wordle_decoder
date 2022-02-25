@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class WordleDecoder
-  class Word
+  class WordSearch
     COMMONALITY_OPTIONS = %i[most less least].freeze
 
     class << self
-      def with_char_at_index(char, index, commonality)
+      def char_at_index(char, index, commonality)
         case commonality
         when :most
           most_common_letter_to_words_arrays[index][char]
@@ -16,12 +16,8 @@ class WordleDecoder
         end
       end
 
-      def with_chars_at_index(chars, index, commonality)
-        chars.uniq.flat_map { |c| with_char_at_index(c, index, commonality) }
-      end
-
-      def without_char_at_index(char, index, commonality)
-        all - with_char_at_index(char, index, commonality)
+      def chars_at_index(chars, index, commonality)
+        chars.uniq.flat_map { |c| char_at_index(c, index, commonality) }
       end
 
       private

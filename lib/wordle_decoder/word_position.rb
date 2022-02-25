@@ -34,7 +34,7 @@ class WordleDecoder
     private
 
     def compute_potential_words
-      Word::COMMONALITY_OPTIONS.each do |commonality|
+      WordSearch::COMMONALITY_OPTIONS.each do |commonality|
         words = compute_potential_words_from_hints(commonality) || Decoder.all
         return words if words.count == 1
 
@@ -98,15 +98,15 @@ class WordleDecoder
       def potential_words(commonality)
         case hint_char
         when "g"
-          Word.with_char_at_index(@answer_char, @index, commonality)
+          WordSearch.char_at_index(@answer_char, @index, commonality)
         when "y"
           chars = @answer_chars - [@answer_char]
-          Word.with_chars_at_index(chars, @index, commonality)
+          WordSearch.chars_at_index(chars, @index, commonality)
         end
       end
 
       def not_potential_words(commonality)
-        Word.with_chars_at_index(@answer_chars, @index, commonality)
+        WordSearch.chars_at_index(@answer_chars, @index, commonality)
       end
     end
   end
