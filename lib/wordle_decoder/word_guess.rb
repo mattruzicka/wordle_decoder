@@ -19,41 +19,41 @@ class WordleDecoder
       (score - (score * BASE_INCONFIDENCE)).round
     end
 
-    # TODO: if word guess has green chars, previous
-    # word guesses are more likely to have those green chars
-    # as yellow chars
-
-    def green_letter_chars_with_index
-      letters_grouped_by_hint_char["g"]&.map do |letter|
-        [letter.answer_char, letter.index]
-      end
+    def green_letters
+      letters_grouped_by_hint_char["g"]
     end
 
-    def yellow_letter_indexes
-      letters_grouped_by_hint_char["y"]&.map(&:index)
+    def yellow_letters
+      letters_grouped_by_hint_char["y"]
+    end
+
+    def black_letters
+      letters_grouped_by_hint_char["b"]
     end
 
     private
 
     def compute_guessable_words
-      words = compute_guessable_words_from_hints || Decoder.all
-      return words if words.count == 1
+      Word::COMMONALITY_OPTIONS.each do |commonality|
+        words = compute_guessable_words_from_hints(commonality) || Decoder.all
+        return words if words.count == 1
 
-      remove_not_guessable_words(words)
+        remove_not_guessable_words(words, commonality)
+        return words unless words.empty?
+      end
     end
 
-    def compute_guessable_words_from_hints
+    def compute_guessable_words_from_hints(commonality)
       words = nil
-      %w[g y].each do |hint_char|
-        letters = letters_grouped_by_hint_char[hint_char]
-        words = filter_by_guessable_words(words, letters) if letters
+      [green_letters, yellow_letters].each do |letters|
+        words = filter_by_guessable_words(words, letters, commonality) if letters
       end
       words
     end
 
-    def remove_not_guessable_words(words)
-      letters_grouped_by_hint_char["b"]&.each do |letter|
-        words -= letter.not_guessable_words
+    def remove_not_guessable_words(words, commonality)
+      black_letters&.each do |letter|
+        words -= letter.not_guessable_words(commonality)
       end
       words
     end
@@ -62,12 +62,12 @@ class WordleDecoder
       @letters_grouped_by_hint_char ||= @letter_guesses.group_by(&:hint_char)
     end
 
-    def filter_by_guessable_words(words, letters)
+    def filter_by_guessable_words(words, letters, commonality)
       letters.each do |letter|
         if words
-          words &= letter.guessable_words
+          words &= letter.guessable_words(commonality)
         else
-          words = letter.guessable_words
+          words = letter.guessable_words(commonality)
         end
       end
       words
@@ -95,18 +95,18 @@ class WordleDecoder
                   :answer_char,
                   :index
 
-      def guessable_words
+      def guessable_words(commonality)
         case hint_char
         when "g"
-          Word.with_char_at_index(@answer_char, @index)
+          Word.with_char_at_index(@answer_char, @index, commonality)
         when "y"
           chars = @answer_chars - [@answer_char]
-          Word.with_chars_at_index(chars, @index)
+          Word.with_chars_at_index(chars, @index, commonality)
         end
       end
 
-      def not_guessable_words
-        Word.with_chars_at_index(@answer_chars, @index)
+      def not_guessable_words(commonality)
+        Word.with_chars_at_index(@answer_chars, @index, commonality)
       end
     end
   end

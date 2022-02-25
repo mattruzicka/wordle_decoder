@@ -14,6 +14,17 @@ class WordleDecoder
 
   attr_reader :word_guesses
 
+  # TODO: rewards words that have yellow letters that match green letters in later words
+  # TODO: reward guess words that have letters that were yellow in previous words in different indexes.
+  # TODO: remove guess words that gave the same yellow letters at the same indexes
+  # TODO: remove guesses that have missed letters that must overlap with a guess from a previous row
+
+  def gues ses
+    last_line_green_letter = []
+    word_guesses.each do |guess|
+    end
+  end
+
   def guess_stats
     stats = +"\n#{@answer_string.rjust(16)}\n"
     word_guesses.each do |word_guess|
