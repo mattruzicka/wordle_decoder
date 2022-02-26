@@ -23,6 +23,18 @@ class WordleDecoder
       @black_chars ||= find_chars(@word_position.black_letter_positions)
     end
 
+    def possible?
+      return true if yellow_chars.empty?
+
+      answer_chars = @word_position.answer_chars.dup
+      delete_green_chars!(answer_chars)
+
+      yellow_chars.all? do |yellow_char|
+        answer_char_index = answer_chars.index(yellow_char)
+        answer_chars.delete_at(answer_char_index) if answer_char_index
+      end
+    end
+
     def confidence_score
       @word_position.confidence_score
     end
@@ -46,6 +58,13 @@ class WordleDecoder
     end
 
     private
+
+    def delete_green_chars!(answer_chars)
+      green_chars&.each do |green_char|
+        answer_char_index = answer_chars.index(green_char)
+        answer_chars.delete_at(answer_char_index) if answer_char_index
+      end
+    end
 
     def find_chars(letter_positions)
       return [] unless letter_positions

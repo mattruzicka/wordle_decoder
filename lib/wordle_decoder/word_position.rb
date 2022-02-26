@@ -3,10 +3,12 @@
 class WordleDecoder
   class WordPosition
     def initialize(hint_line, answer_chars)
+      @answer_chars = answer_chars
       @letter_positions = initialize_letter_positions(hint_line, answer_chars)
     end
 
-    attr_reader :letter_positions
+    attr_reader :answer_chars,
+                :letter_positions
 
     def words
       @words ||= initialize_words
@@ -34,10 +36,13 @@ class WordleDecoder
     private
 
     def initialize_words
-      compute_words.map { |str| Word.new(str, self) }
+      potential_words = intersect_potential_and_impossible_words
+      potential_words.map! { |str| Word.new(str, self) }
+      potential_words.select!(&:possible?)
+      potential_words
     end
 
-    def compute_words
+    def intersect_potential_and_impossible_words
       WordSearch::COMMONALITY_OPTIONS.each do |commonality|
         words = compute_words_from_hints(commonality)
         case words.count
