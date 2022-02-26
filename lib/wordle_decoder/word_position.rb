@@ -47,7 +47,7 @@ class WordleDecoder
           next
         end
 
-        remove_not_words(words, commonality)
+        words = remove_impossible_words(words, commonality)
         return words unless words.empty?
       end
     end
@@ -60,26 +60,26 @@ class WordleDecoder
       words
     end
 
-    def remove_not_words(words, commonality)
+    def filter_by_words(words, letters, commonality)
+      letters.each do |letter|
+        if words
+          words &= letter.potential_words(commonality)
+        else
+          words = letter.potential_words(commonality)
+        end
+      end
+      words
+    end
+
+    def remove_impossible_words(words, commonality)
       black_letter_positions&.each do |letter|
-        words -= letter.not_words(commonality)
+        words -= letter.impossible_words(commonality)
       end
       words
     end
 
     def select_letter_positions_by_hint(hint_char)
       @letter_positions.select { |lg| lg.hint_char == hint_char }
-    end
-
-    def filter_by_words(words, letters, commonality)
-      letters.each do |letter|
-        if words
-          words &= letter.words(commonality)
-        else
-          words = letter.words(commonality)
-        end
-      end
-      words
     end
 
     def initialize_letter_positions(hint_line, answer_chars)
@@ -104,7 +104,7 @@ class WordleDecoder
                   :answer_char,
                   :index
 
-      def words(commonality)
+      def potential_words(commonality)
         case hint_char
         when "g"
           WordSearch.char_at_index(@answer_char, @index, commonality)
@@ -114,7 +114,7 @@ class WordleDecoder
         end
       end
 
-      def not_words(commonality)
+      def impossible_words(commonality)
         WordSearch.chars_at_index(@answer_chars, @index, commonality)
       end
     end
