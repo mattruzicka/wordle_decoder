@@ -2,9 +2,32 @@
 
 class WordleDecoder
   class Word
-    def initialize(word_str, word_position)
+    def initialize(word_str, word_position, commonality)
       @word_str = word_str
       @word_position = word_position
+      @commonality = commonality
+    end
+
+    def chars
+      @chars ||= @word_str.split("")
+    end
+
+    COMMON_LETTERS = %w[s e a o r i l t n u].freeze
+    PENALTY_LETTERS_COUNT = 5
+
+    def common_letter_score
+      if @word_position.line_index <= 1
+        (chars & COMMON_LETTERS).count
+      else
+        letters_count = PENALTY_LETTERS_COUNT + @word_position.line_index
+        -(black_chars & COMMON_LETTERS.first(letters_count)).count
+      end
+    end
+
+    COMMONALITY_SCORES = { most: 2, less: 1, least: 0 }.freeze
+
+    def commonality_score
+      COMMONALITY_SCORES[@commonality]
     end
 
     def green_chars
@@ -39,11 +62,11 @@ class WordleDecoder
       @word_position.confidence_score
     end
 
-    def as_string
+    def to_s
       @word_str
     end
 
-    def to_s
+    def formatted_string
       @word_position.letter_positions.map do |letter_position|
         char = @word_str[letter_position.index]
         case letter_position.hint_char

@@ -27,6 +27,22 @@ task :create_word_search_files do
   File.write(least_common_words_path, least_common_words.join("\n"))
 end
 
+task :output_most_common_letters do
+  words = load_wordle_words("allowed_answers.txt")
+  words.concat load_wordle_words("allowed_guesses.txt")
+  letter_count_tally = words.flat_map { _1.split("") }.tally
+  letter_count_tally = letter_count_tally.sort_by { -_2 }
+  puts letter_count_tally.first(10).map { _1.first }.join(" ")
+end
+
+task :output_most_common_letters_by_word_count do
+  words = load_wordle_words("allowed_answers.txt")
+  words.concat load_wordle_words("allowed_guesses.txt")
+  word_count_tally = ("a".."z").map { |l| [l, words.count { |word| word.include?(l) }] }
+  word_count_tally = word_count_tally.sort_by { -_2 }
+  puts word_count_tally.first(10).map { _1.first }.join(" ")
+end
+
 def load_wordle_words(file_name)
   file_path = File.join(File.dirname(__FILE__), file_name)
   File.read(file_path).split("\n")

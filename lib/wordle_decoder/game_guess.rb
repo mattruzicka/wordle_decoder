@@ -17,12 +17,14 @@ class WordleDecoder
     private
 
     #
-    # Greatly penalize words that have the same black letters as any previous word
-    # Greatly penalize words that have the same yellow letter/index pair as any previous word
-    # Reward words that have yellow letters that match yellow letters in previous words, but in different positions
-    # Reward words that have yellow letters that match green letters in previous words
-    # Penalize words that have yellow letters that don't appear in previous words
-    # Penalize words that have green letters that don't appear in previous words
+    # Greatly penalize words that have the same black letters as any seen word
+    # Greatly penalize words that have the same yellow letter/index pair as any seen word
+    # Reward words that have yellow letters that match yellow letters in seen words, but in different positions
+    # Reward words that have yellow letters that match green letters in seen words
+    # Penalize words that have yellow letters that don't appear in seen words
+    # Penalize words that have green letters that don't appear in seen words
+    # Rewards words based on commonality
+    # Reward/penalize words based on line indexes and common letters
     #
     def select_best_words_with_scores_2d_array
       selected_words = [@start_word]
@@ -42,6 +44,8 @@ class WordleDecoder
           word_score += (seen_green_chars & word.yellow_chars).count
           word_score -= (word.yellow_chars - seen_yellow_chars).count
           word_score -= (word.green_chars - seen_green_chars).count
+          word_score += word.commonality_score
+          word_score += word.common_letter_score
           [word, word_score]
         end
 
