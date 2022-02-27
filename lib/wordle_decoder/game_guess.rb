@@ -37,7 +37,7 @@ class WordleDecoder
       @word_positions.each do |word_position|
         words_with_score_array = word_position.words.map do |word|
           next([word, -95]) unless (seen_black_chars & word.black_chars).empty?
-          next([word, -90]) if seen_yellow_char_index_pairs.include?(word.yellow_char_index_pairs)
+          next([word, -90]) if !(seen_yellow_char_index_pairs & word.yellow_char_index_pairs).empty?
 
           word_score = 0
           word_score += (seen_yellow_chars & word.yellow_chars).count
