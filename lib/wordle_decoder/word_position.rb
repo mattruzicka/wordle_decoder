@@ -91,6 +91,7 @@ class WordleDecoder
 
     class LetterPosition
       EMOJI_HINT_CHARS = { "⬛" => "b",
+                           "⬜" => "b",
                            "🟨" => "y",
                            "🟩" => "g" }.freeze
 
