@@ -3,12 +3,14 @@
 class WordleDecoder
   class WordPosition
     def initialize(hint_line, line_index, answer_chars)
+      @hint_chars = normalize_hint_chars(hint_line)
       @answer_chars = answer_chars
       @line_index = line_index
-      @letter_positions = initialize_letter_positions(hint_line, answer_chars)
+      @letter_positions = initialize_letter_positions(@hint_chars, @answer_chars)
     end
 
-    attr_reader :answer_chars,
+    attr_reader :hint_chars,
+                :answer_chars,
                 :line_index,
                 :letter_positions
 
@@ -83,22 +85,27 @@ class WordleDecoder
       @letter_positions.select { |lg| lg.hint_char == hint_char }
     end
 
-    def initialize_letter_positions(hint_line, answer_chars)
-      hint_line.each_char.map.with_index do |hint_char, index|
-        LetterPosition.new(hint_char, answer_chars, index)
+    EMOJI_HINT_CHARS = { "⬛" => "b",
+                         "⬜" => "b",
+                         "🟨" => "y",
+                         "🟩" => "g" }.freeze
+
+    def normalize_hint_chars(hint_line)
+      hint_line.each_char.map { |c| EMOJI_HINT_CHARS[c] || c }
+    end
+
+    def initialize_letter_positions(hint_chars, answer_chars)
+      hint_chars.each_with_index.map do |hint_char, index|
+        LetterPosition.new(index, hint_char, hint_chars, answer_chars)
       end
     end
 
     class LetterPosition
-      EMOJI_HINT_CHARS = { "⬛" => "b",
-                           "⬜" => "b",
-                           "🟨" => "y",
-                           "🟩" => "g" }.freeze
-
-      def initialize(hint_char, answer_chars, index)
-        @hint_char = EMOJI_HINT_CHARS[hint_char] || hint_char
-        @answer_chars = answer_chars
+      def initialize(index, hint_char, hint_chars, answer_chars)
         @index = index
+        @hint_char = hint_char
+        @hint_chars = hint_chars
+        @answer_chars = answer_chars
         @answer_char = @answer_chars[index]
       end
 
@@ -111,8 +118,14 @@ class WordleDecoder
         when "g"
           WordSearch.char_at_index(@answer_char, @index, commonality)
         when "y"
-          chars = @answer_chars - [@answer_char]
-          WordSearch.chars_at_index(chars, @index, commonality)
+          if @hint_chars.count("g") == 3
+            must_be_char_index = @hint_chars.index.with_index { |h, i| h != "g" && i != @index }
+            must_be_char = @answer_chars[must_be_char_index]
+            WordSearch.char_at_index(must_be_char, @index, commonality)
+          else
+            chars = @answer_chars - [@answer_char]
+            WordSearch.chars_at_index(chars, @index, commonality)
+          end
         end
       end
 
