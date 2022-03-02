@@ -17,6 +17,7 @@ class WordleDecoder
     private
 
     #
+    # Greatly penalize words that have multiple of the same black letters
     # Greatly penalize words that have the same black letters as any seen word
     # Greatly penalize words that have the same yellow letter/index pair as any seen word
     # Reward words that have yellow letters that match yellow letters in seen words, but in different positions
@@ -36,6 +37,7 @@ class WordleDecoder
 
       @word_positions.each do |word_position|
         words_with_score_array = word_position.words.map do |word|
+          next([word, -100]) if word.black_chars.count != word.black_chars.uniq.count
           next([word, -95]) unless (seen_black_chars & word.black_chars).empty?
           next([word, -90]) if !(seen_yellow_char_index_pairs & word.yellow_char_index_pairs).empty?
 
