@@ -39,12 +39,12 @@ class WordleDecoder
         words_with_score_array = word_position.words.map do |word|
           next([word, -100]) if word.black_chars.count != word.black_chars.uniq.count
           next([word, -95]) unless (seen_black_chars & word.black_chars).empty?
-          next([word, -90]) if !(seen_yellow_char_index_pairs & word.yellow_char_index_pairs).empty?
+          next([word, -90]) unless (seen_yellow_char_index_pairs & word.yellow_char_index_pairs).empty?
 
           word_score = 0
           word_score += (seen_yellow_chars & word.yellow_chars).count
           word_score += (seen_green_chars & word.yellow_chars).count
-          word_score -= (word.yellow_chars - seen_yellow_chars).count
+          word_score -= (word.yellow_chars - seen_yellow_chars - seen_green_chars).count
           word_score -= (word.green_chars - seen_green_chars).count
           word_score += word.commonality_score
           word_score += word.common_letter_score

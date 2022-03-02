@@ -12,12 +12,12 @@ class WordleDecoder
       @chars ||= @word_str.split("")
     end
 
-    COMMON_LETTERS = %w[s e a o r i l t n u].freeze
+    COMMON_LETTERS = %w[s e a o r i l t n].freeze
     PENALTY_LETTERS_COUNT = 5
 
     def common_letter_score
       if @word_position.line_index <= 1
-        (chars & COMMON_LETTERS).count
+        [(chars & COMMON_LETTERS).count, 3].min
       else
         letters_count = PENALTY_LETTERS_COUNT + @word_position.line_index
         -(black_chars & COMMON_LETTERS.first(letters_count)).count
