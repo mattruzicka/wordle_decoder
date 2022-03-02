@@ -16,15 +16,12 @@ RuboCop::RakeTask.new
 task default: %i[test rubocop]
 
 task :create_word_search_files do
-  allowed_answers = load_wordle_words("allowed_answers.txt")
-  most_common_words, less_common_words = allowed_answers.partition { |r| r.split("").uniq.count == 5 }
-  most_common_words_path = common_words_path("most_common_words.txt")
-  File.write(most_common_words_path, most_common_words.join("\n"))
-  less_common_words_path = common_words_path("less_common_words.txt")
-  File.write(less_common_words_path, less_common_words.join("\n"))
-  least_common_words_path = common_words_path("least_common_words.txt")
-  least_common_words = load_wordle_words("allowed_guesses.txt")
-  File.write(least_common_words_path, least_common_words.join("\n"))
+  common_words = create_word_frequencies_file_and_return_sorted_wordle_words
+  least_common_words = common_words.slice!(3000..-1)
+  most_common_words, less_common_words = common_words.partition { |r| r.split("").uniq.count == 5 }
+  File.write(lib_path("most_common_words.txt"), most_common_words.join("\n"))
+  File.write(lib_path("less_common_words.txt"), less_common_words.join("\n"))
+  File.write(lib_path("least_common_words.txt"), least_common_words.join("\n"))
 end
 
 task :output_most_common_letters do
@@ -43,11 +40,35 @@ task :output_most_common_letters_by_word_count do
   puts word_count_tally.first(10).map { _1.first }.join(" ")
 end
 
+def create_word_frequencies_file_and_return_sorted_wordle_words
+  wordle_words = load_wordle_words("allowed_answers.txt")
+  wordle_words.concat load_wordle_words("allowed_guesses.txt")
+  frequency_file_name = "word_frequencies.txt"
+
+  require "csv"
+  word_frequencies = load_five_letter_word_frequencies
+  wordle_words.sort_by! { |w| word_frequencies[w].to_i }
+  wordle_words.reverse!
+  word_frequencies_txt = +""
+  wordle_words.each do |word|
+    frequency = word_frequencies[word].to_i
+    word_frequencies_txt << "#{word},#{frequency}\n"
+  end
+  File.write(lib_path(frequency_file_name), word_frequencies_txt)
+  wordle_words
+end
+
+def load_five_letter_word_frequencies
+  frequencies = {}
+  CSV.foreach("unigram_freq.csv") { |r| frequencies[r[0]] = r[1] if r[0].length == 5 }
+  frequencies
+end
+
 def load_wordle_words(file_name)
   file_path = File.join(File.dirname(__FILE__), file_name)
   File.read(file_path).split("\n")
 end
 
-def common_words_path(file_name)
+def lib_path(file_name)
   File.join(File.dirname(__FILE__), "lib", file_name)
 end

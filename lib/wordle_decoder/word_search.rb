@@ -20,7 +20,23 @@ class WordleDecoder
         chars.uniq.flat_map { |c| char_at_index(c, index, commonality) }
       end
 
+      def frequency_score(word)
+        word_frequencies[word]
+      end
+
       private
+
+      def word_frequencies
+        @word_frequencies ||= load_word_frequencies
+      end
+
+      def load_word_frequencies
+        load_wordle_words("word_frequencies.txt").map! do |str|
+          array = str.split(",")
+          array[1] = array[1].to_i
+          array
+        end.to_h
+      end
 
       def most_common_letter_to_words_arrays
         @most_common_letter_to_words_arrays ||= build_letter_to_words_hashes("most_common_words.txt")

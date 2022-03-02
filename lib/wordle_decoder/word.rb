@@ -30,6 +30,10 @@ class WordleDecoder
       COMMONALITY_SCORES[@commonality]
     end
 
+    def frequency_score
+      @frequency_score ||= WordSearch.frequency_score(@word_str)
+    end
+
     def green_chars
       @green_chars ||= find_chars(@word_position.green_letter_positions)
     end

@@ -51,7 +51,8 @@ class WordleDecoder
           [word, word_score]
         end
 
-        best_word, best_score = words_with_score_array.max_by { _2 }
+        _best_word, best_score = words_with_score_array.max_by { _2 }
+        best_word = choose_best_word(words_with_score_array, best_score)
         @score += best_score
         selected_words << best_word
         selected_scores << normalize_confidence_score(best_word, best_score)
@@ -63,6 +64,15 @@ class WordleDecoder
 
       selected_scores.unshift normalize_confidence_score(@start_word, @score)
       selected_words.zip(selected_scores)
+    end
+
+    def choose_best_word(words_with_score_array, best_score)
+      best_words = words_with_score_array.filter_map { _1 if _2 == best_score }
+      if best_words.count > 1
+        best_words.max_by(&:frequency_score)
+      else
+        best_words.first
+      end
     end
 
     def normalize_confidence_score(word, score)
