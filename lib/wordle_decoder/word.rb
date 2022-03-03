@@ -8,6 +8,20 @@ class WordleDecoder
       @commonality = commonality
     end
 
+    def score
+      @score ||= commonality_score + common_letter_score +
+                 frequency_score - pentalty_score
+    end
+
+    def pentalty_score
+      guessed_same_letter_twice? ? 100 : 0
+    end
+
+    def confidence_score(guess_score)
+      position_score = @word_position.confidence_score
+      (position_score + guess_score).clamp(position_score, 99).round
+    end
+
     def chars
       @chars ||= @word_str.split("")
     end
@@ -62,15 +76,11 @@ class WordleDecoder
       end
     end
 
-    def confidence_score
-      @word_position.confidence_score
-    end
-
     def to_s
       @word_str
     end
 
-    def formatted_string
+    def to_terminal
       @word_position.letter_positions.map do |letter_position|
         char = @word_str[letter_position.index]
         case letter_position.hint_char
@@ -85,6 +95,10 @@ class WordleDecoder
     end
 
     private
+
+    def guessed_same_letter_twice?
+      black_chars.count != black_chars.uniq.count || !(black_chars & yellow_chars).empty?
+    end
 
     def delete_green_chars!(answer_chars)
       green_chars&.each do |green_char|

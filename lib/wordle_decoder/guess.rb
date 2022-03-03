@@ -1,17 +1,31 @@
 # frozen_string_literal: true
 
 class WordleDecoder
-  class GameGuess
-    def initialize(start_word, word_positions)
+  class Guess
+    def initialize(start_word, first_word_position, word_positions)
       @start_word = start_word
+      @first_word_position = first_word_position
       @word_positions = word_positions
-      @score = 0
     end
 
-    attr_reader :score
+    def score
+      @score ||= words_with_scores.sum(&:last)
+    end
 
-    def best_words_with_scores_2d_array
-      @best_words_with_scores_2d_array ||= select_best_words_with_scores_2d_array.reverse!
+    def word_scores
+      @word_scores ||= words_with_scores.map(&:last)
+    end
+
+    def words
+      @words ||= words_with_scores.map { |w, _s| w.to_s }
+    end
+
+    def words_with_scores
+      @words_with_scores ||= select_words_with_scores
+    end
+
+    def inspect
+      "<#{self.class.name} score: #{score}, word_scores: #{word_scores}, words: #{words}>"
     end
 
     private
@@ -27,52 +41,37 @@ class WordleDecoder
     # Rewards words based on commonality
     # Reward/penalize words based on line indexes and common letters
     #
-    def select_best_words_with_scores_2d_array
+    def select_words_with_scores
       selected_words = [@start_word]
-      selected_scores = []
+      selected_word_scores = [@start_word.score]
       seen_black_chars = @start_word.black_chars
       seen_yellow_chars = @start_word.yellow_chars
       seen_green_chars = @start_word.green_chars
       seen_yellow_char_index_pairs = @start_word.yellow_char_index_pairs
-
       @word_positions.each do |word_position|
         words_with_score_array = word_position.words.map do |word|
-          next([word, -100]) if word.black_chars.count != word.black_chars.uniq.count
+          word_score = word.score
+          next([word, word_score]) if word_score.negative?
           next([word, -95]) unless (seen_black_chars & word.black_chars).empty?
           next([word, -90]) unless (seen_yellow_char_index_pairs & word.yellow_char_index_pairs).empty?
 
-          word_score = 0
           word_score += (seen_yellow_chars & word.yellow_chars).count
           word_score += (seen_green_chars & word.yellow_chars).count
           word_score -= (word.yellow_chars - seen_yellow_chars - seen_green_chars).count
           word_score -= (word.green_chars - seen_green_chars).count
-          word_score += word.commonality_score
-          word_score += word.common_letter_score
           [word, word_score]
         end
 
-        _best_word, best_score = words_with_score_array.max_by { _2 }
-        best_word = choose_best_word(words_with_score_array, best_score)
-        @score += best_score
+        best_word, best_score = words_with_score_array.max_by { _2 }
         selected_words << best_word
-        selected_scores << normalize_confidence_score(best_word, best_score)
+        selected_word_scores << best_score
         seen_black_chars.concat(best_word.black_chars)
         seen_yellow_chars.concat(best_word.yellow_chars)
         seen_green_chars.concat(best_word.green_chars)
         seen_yellow_char_index_pairs.concat(best_word.yellow_char_index_pairs)
       end
 
-      selected_scores.unshift normalize_confidence_score(@start_word, @score)
-      selected_words.zip(selected_scores)
-    end
-
-    def choose_best_word(words_with_score_array, best_score)
-      best_words = words_with_score_array.filter_map { _1 if _2 == best_score }
-      if best_words.count > 1
-        best_words.max_by(&:frequency_score)
-      else
-        best_words.first
-      end
+      selected_words.zip(selected_word_scores)
     end
 
     def normalize_confidence_score(word, score)

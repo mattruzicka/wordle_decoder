@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json'
+
 class WordleDecoder
   class WordSearch
     COMMONALITY_OPTIONS = %i[most less least].freeze
@@ -21,21 +23,17 @@ class WordleDecoder
       end
 
       def frequency_score(word)
-        word_frequencies[word]
+        words_to_frequency_score_hash[word]
+      end
+
+      def words_to_frequency_score_hash
+        @words_to_frequency_score_hash ||= load_words_to_frequency_score_hash
       end
 
       private
 
-      def word_frequencies
-        @word_frequencies ||= load_word_frequencies
-      end
-
-      def load_word_frequencies
-        load_wordle_words("word_frequencies.txt").map! do |str|
-          array = str.split(",")
-          array[1] = array[1].to_i
-          array
-        end.to_h
+      def load_words_to_frequency_score_hash
+        JSON.parse(file_path("words_to_frequency_score.json"))
       end
 
       def most_common_letter_to_words_arrays
@@ -56,8 +54,12 @@ class WordleDecoder
       end
 
       def load_wordle_words(file_name)
+        file_path(file_name).split("\n")
+      end
+
+      def file_path(file_name)
         file_path = File.join(File.dirname(__FILE__), "..", file_name)
-        File.read(file_path).split("\n")
+        File.read(file_path)
       end
     end
   end

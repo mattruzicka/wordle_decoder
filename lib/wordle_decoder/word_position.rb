@@ -39,6 +39,9 @@ class WordleDecoder
 
     private
 
+    # TODO: when all black letters, this returns empty array...
+    # probably fine, but the game guess should probbaly at that point
+    # pick the best word based on privious line guesses.
     def initialize_words
       potential_words = []
       WordSearch::COMMONALITY_OPTIONS.each do |commonality|
@@ -60,7 +63,7 @@ class WordleDecoder
       [green_letter_positions, yellow_letter_positions].each do |letters|
         words = filter_by_words(words, letters, commonality) if letters
       end
-      words
+      words || []
     end
 
     def filter_by_words(words, letters, commonality)
@@ -74,6 +77,8 @@ class WordleDecoder
       words
     end
 
+    # TODO: if black letter is second occurence and first occurence was green/yellow and the final
+    # word only has one occurrence, don't fetch impossible words.
     def remove_impossible_words(words, commonality)
       black_letter_positions&.each do |letter|
         words -= letter.impossible_words(commonality)
@@ -123,6 +128,8 @@ class WordleDecoder
             must_be_char = @answer_chars[must_be_char_index]
             WordSearch.char_at_index(must_be_char, @index, commonality)
           else
+            # TODO: if yellow char is in the word as green already, and there's only one isntance of it
+            # in final word, can assume it's not that char.
             chars = @answer_chars - [@answer_char]
             WordSearch.chars_at_index(chars, @index, commonality)
           end

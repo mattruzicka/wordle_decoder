@@ -3,49 +3,61 @@
 require "cli/ui"
 
 require_relative "wordle_decoder/version"
-require_relative "wordle_decoder/game_guess"
-require_relative "wordle_decoder/word"
-require_relative "wordle_decoder/word_position"
 require_relative "wordle_decoder/word_search"
+require_relative "wordle_decoder/word_position"
+require_relative "wordle_decoder/word"
+require_relative "wordle_decoder/guess"
 
 class WordleDecoder
   class Error < StandardError; end
 
   def initialize(answer_str, hint_str)
     @answer_str = answer_str
+    @hint_str = hint_str
     @word_positions = initialize_word_positions(answer_str, hint_str)
     validate_word_positions!
   end
 
-  attr_reader :word_positions
+  attr_reader :answer_str,
+              :hint_str,
+              :word_positions
+
+  def to_terminal
+    str = +"\n  {{underline:GUESSES}}   {{underline:CONFIDENCE SCORE}}\n\n"
+    best_guess.words_with_scores.reverse_each do |word, guess_score|
+      str << "  #{word.to_terminal}     #{word.confidence_score(guess_score)}\n"
+    end
+    str << "  {{green:#{answer_str}}}\n\n"
+    CLI::UI.fmt(str)
+  end
 
   def best_guess
-    game_guess = game_guesses.max_by(&:score)
-    best_guess = +"\n  {{underline:GUESSES}}   {{underline:CONFIDENCE SCORE}}\n\n"
-    game_guess.best_words_with_scores_2d_array.each do |best_word, confidence_score|
-      best_guess << "  #{best_word.formatted_string}     #{confidence_score}\n"
-    end
-    best_guess << "  {{green:#{@answer_str}}}\n\n"
-    puts CLI::UI.fmt(best_guess)
+    @best_guess ||= guesses.first
   end
 
-  def game_guesses
-    first_word_position, *remaining_positions = word_positions.reverse
-    first_word_position.words.map do |start_word|
-      GameGuess.new(start_word, remaining_positions)
-    end
+  def guesses
+    @guesses ||= initialize_and_sort_guesses
   end
 
-  def searched_words
-    stats = +"\n  {{green:#{@answer_str}}}\n"
-    word_positions.reverse_each do |word_position|
-      words = word_position.words
-      stats << "  #{words.join(", ")}\n"
-    end
-    puts CLI::UI.fmt(stats)
+
+  def inspect
+    lines = ["<#{self.class.name} answer_str: #{answer_str}, hint_str: #{hint_str.inspect}"]
+    lines.concat guesses.map(&:inspect)
+    lines.last << ">"
+    lines.join("\n")
   end
 
   private
+
+  def initialize_and_sort_guesses
+    first_word_position, *remaining_positions = word_positions.reverse
+    guesses = first_word_position.words.map do |start_word|
+      Guess.new(start_word, first_word_position, remaining_positions)
+    end
+    guesses.sort_by!(&:score)
+    guesses.reverse!
+    guesses
+  end
 
   def initialize_word_positions(answer_str, hint_str)
     answer_str = answer_str.downcase
@@ -81,6 +93,7 @@ class WordleDecoder
   end
 
   def validate_word_positions!
+    word_positions.map(&:words)
     return unless word_positions.any? { |wp| wp.words.empty? }
 
     raise Error.new("The wordle share that you entered appears made up")
