@@ -2,7 +2,7 @@
 
 class WordleDecoder
   class Word
-    def initialize(word_str, word_position, commonality)
+    def initialize(word_str, word_position, commonality = nil)
       @word_str = word_str
       @word_position = word_position
       @commonality = commonality
@@ -41,7 +41,7 @@ class WordleDecoder
     COMMONALITY_SCORES = { most: 2, less: 1, least: 0 }.freeze
 
     def commonality_score
-      COMMONALITY_SCORES[@commonality]
+      COMMONALITY_SCORES[@commonality] || 0
     end
 
     def frequency_score

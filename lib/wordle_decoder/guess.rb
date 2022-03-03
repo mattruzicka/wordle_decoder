@@ -49,7 +49,9 @@ class WordleDecoder
       seen_green_chars = @start_word.green_chars
       seen_yellow_char_index_pairs = @start_word.yellow_char_index_pairs
       @word_positions.each do |word_position|
-        words_with_score_array = word_position.words.map do |word|
+        potential_words = word_position.potential_words
+        potential_words = word_position.frequent_potential_words if potential_words.empty?
+        words_with_score_array = potential_words.map do |word|
           word_score = word.score
           next([word, word_score]) if word_score.negative?
           next([word, -95]) unless (seen_black_chars & word.black_chars).empty?

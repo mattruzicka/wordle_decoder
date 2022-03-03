@@ -14,14 +14,20 @@ class WordleDecoder
                 :line_index,
                 :letter_positions
 
-    def words
-      @words ||= initialize_words
+    def potential_words
+      @potential_words ||= initialize_potential_words
+    end
+
+    def frequent_potential_words
+      @frequent_potential_words ||= find_10_frequent_potential_words
     end
 
     BASE_INCONFIDENCE = 0.05
 
     def confidence_score
-      score = (100 * (1.0 / words.count.to_f))
+      return 1 if potential_words.empty?
+
+      score = (100 * (1.0 / potential_words.count.to_f))
       (score - (score * BASE_INCONFIDENCE)).round
     end
 
@@ -39,10 +45,7 @@ class WordleDecoder
 
     private
 
-    # TODO: when all black letters, this returns empty array...
-    # probably fine, but the game guess should probbaly at that point
-    # pick the best word based on privious line guesses.
-    def initialize_words
+    def initialize_potential_words
       potential_words = []
       WordSearch::COMMONALITY_OPTIONS.each do |commonality|
         word_strings = compute_words_from_hints(commonality)
@@ -77,8 +80,6 @@ class WordleDecoder
       words
     end
 
-    # TODO: if black letter is second occurence and first occurence was green/yellow and the final
-    # word only has one occurrence, don't fetch impossible words.
     def remove_impossible_words(words, commonality)
       black_letter_positions&.each do |letter|
         words -= letter.impossible_words(commonality)
@@ -88,6 +89,11 @@ class WordleDecoder
 
     def select_letter_positions_by_hint(hint_char)
       @letter_positions.select { |lg| lg.hint_char == hint_char }
+    end
+
+    def find_10_frequent_potential_words
+      word_strings = WordSearch.most_frequent_words_without_chars(@answer_chars, 10)
+      word_strings.map { |str| Word.new(str, self) }
     end
 
     EMOJI_HINT_CHARS = { "⬛" => "b",

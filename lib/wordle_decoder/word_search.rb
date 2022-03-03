@@ -30,6 +30,16 @@ class WordleDecoder
         @words_to_frequency_score_hash ||= load_words_to_frequency_score_hash
       end
 
+      def most_frequent_words_without_chars(without_chars, limit)
+        regex = /#{without_chars.join("|")}/
+        words = []
+        words_to_frequency_score_hash.each_key.reverse_each do |str|
+          words << str unless str.match?(regex)
+
+          return(words) if words.count == limit
+        end
+      end
+
       private
 
       def load_words_to_frequency_score_hash

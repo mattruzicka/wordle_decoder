@@ -15,7 +15,6 @@ class WordleDecoder
     @answer_str = answer_str
     @hint_str = hint_str
     @word_positions = initialize_word_positions(answer_str, hint_str)
-    validate_word_positions!
   end
 
   attr_reader :answer_str,
@@ -51,7 +50,7 @@ class WordleDecoder
 
   def initialize_and_sort_guesses
     first_word_position, *remaining_positions = word_positions.reverse
-    guesses = first_word_position.words.map do |start_word|
+    guesses = first_word_position.potential_words.map do |start_word|
       Guess.new(start_word, first_word_position, remaining_positions)
     end
     guesses.sort_by!(&:score)
@@ -90,12 +89,5 @@ class WordleDecoder
     return if hint_lines.is_a?(Array) && hint_lines.all? { |line| line.length == 5 }
 
     raise Error.new("The wordle share that you entered appears invalid")
-  end
-
-  def validate_word_positions!
-    word_positions.map(&:words)
-    return unless word_positions.any? { |wp| wp.words.empty? }
-
-    raise Error.new("The wordle share that you entered appears made up")
   end
 end
