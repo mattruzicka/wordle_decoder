@@ -20,4 +20,18 @@ class TestWordleDecoder < Minitest::Test
     assert share.answer_chars == %w[a h e a d]
     assert share.hint_lines == ["⬛⬛🟨⬛🟨", "⬛🟩🟩🟩⬛"]
   end
+
+  def test_that_the_wordle_share_can_find_the_answer_from_the_string_input
+    string_input = "Wordle 258 3/6\n\n⬛⬛🟨⬛🟨\n⬛🟩🟩🟩⬛\n🟩🟩🟩🟩🟩"
+    share = WordleDecoder::WordleShare.new(string_input)
+    share.find_answer
+    assert share.answer_chars == %w[a h e a d]
+  end
+
+  def test_that_the_wordle_share_can_find_the_answer_from_the_array_input
+    array_input = ["Wordle 258 3/6\n", "\n", "⬛⬛🟨⬛🟨\n", "⬛🟩🟩🟩⬛\n", "🟩🟩🟩🟩🟩\n"]
+    share = WordleDecoder::WordleShare.new(array_input)
+    share.find_answer
+    assert share.hint_lines == ["⬛⬛🟨⬛🟨", "⬛🟩🟩🟩⬛"]
+  end
 end

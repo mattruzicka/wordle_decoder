@@ -23,7 +23,17 @@ puts clear_pasted_text_lines.join
 wordle_share = WordleDecoder::WordleShare.new(input_lines)
 puts CLI::UI.fmt(wordle_share.to_terminal)
 puts "\n\n"
-wordle_share.answer_str = CLI::UI.ask("\r  What was the word of the day?") until wordle_share.answer_str
+
+if wordle_share.find_answer
+  answer_confirmed = CLI::UI::Prompt.confirm("\r  Is \"{{green:#{wordle_share.answer}}}\" the word of the day?")
+  unless answer_confirmed
+    wordle_share.answer = nil
+    puts "\n"
+  end
+end
+
+wordle_share.answer_input = CLI::UI.ask("\r  What was the word of the day?") until wordle_share.answer
+
 puts "\n\n"
 
 decoder = wordle_share.decoder

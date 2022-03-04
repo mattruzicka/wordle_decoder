@@ -8,33 +8,56 @@ class WordleDecoder
       ANSWER_LINES.any? { input_lines.include?(_1) }
     end
 
-    def initialize(input, answer_str = nil)
-      @input = input
-      self.answer_str = answer_str
+    def self.wordle_answers
+      @wordle_answers ||= load_worldle_ansers
     end
 
-    attr_reader :input, :answer_str
+    def self.load_worldle_ansers
+      file_path = File.join(File.dirname(__FILE__), "..", "wordle_answers.json")
+      JSON.parse File.read(file_path)
+    end
 
-    def answer_str=(val)
-      @answer_str = normalize_answer_str(val)
+    def initialize(input, answer_input = nil)
+      @input = input
+      self.answer_input = answer_input
+    end
+
+    attr_reader :input,
+                :answer_input
+
+    attr_accessor :answer
+
+    def answer_input=(val)
+      @answer_input = val
+      @answer = normalize_answer_input(val)
+    end
+
+    GAME_DAY_REGEX = /wordle\s(\d+)\s/i.freeze
+
+    def find_answer
+      title_line = input_lines.detect { |line| line.match?(GAME_DAY_REGEX) }
+      game_day = title_line.match(GAME_DAY_REGEX).captures.first&.to_i
+      self.answer = self.class.wordle_answers[game_day]
     end
 
     def answer_chars
-      @answer_chars ||= parse_answer_chars!
+      @answer_chars ||= answer&.strip&.split("")
     end
 
     def hint_lines
-      @hint_lines ||= parse_hint_lines
+      @hint_lines ||= parse_hint_lines!
     end
 
     def wordle_lines
-      @wordle_lines ||= parse_wordle_lines
+      @wordle_lines ||= parse_wordle_lines!
+    end
+
+    def input_lines
+      @input_lines ||= normalize_input_lines(parse_input_lines!)
     end
 
     def to_terminal
-      str = +"{{blue:>}} #{wordle_lines.join("\n  ")}"
-      str << "\n{{green:#{answer_str}}}" if answer_str
-      str
+      "{{blue:>}} #{wordle_lines.join("\n  ")}"
     end
 
     def decoder
@@ -42,37 +65,21 @@ class WordleDecoder
     end
 
     def inspect
-      "<#{self.class.name} input: #{input}, answer_str: #{answer_str}" \
+      "<#{self.class.name} input: #{input}, answer_input: #{answer_input}" \
         " answer_chars: #{answer_chars.inspect} hint_lines: #{hint_lines.inspect}>"
     end
 
     private
 
-    def parse_answer_chars!
-      @answer_str ||= lookup_answer_str!
-      @answer_str.strip.split("")
-    end
-
-    def lookup_answer_str!
-      # TODO: try to find word of the day from share text
-      raise Error, "The word of the day is missing."
-    end
-
-    def parse_hint_lines
+    def parse_hint_lines!
       hint_lines = wordle_lines.dup
       hint_lines.pop if ANSWER_LINES.include?(hint_lines.last)
       hint_lines
     end
 
-    def parse_wordle_lines
-      input_lines = parse_input_lines!
-      input_lines = normalize_input_lines(input_lines)
-      select_hint_lines(input_lines)
-    end
-
     VALID_HINT_CHARS = WordPosition::EMOJI_HINT_CHARS.to_a.flatten.uniq
 
-    def select_hint_lines(input_lines)
+    def parse_wordle_lines!
       input_lines.select do |line|
         line.each_char.all? { |c| VALID_HINT_CHARS.include?(c) }
       end
@@ -107,7 +114,7 @@ class WordleDecoder
 
     VALID_ANSWER_CHARS = ("a".."z").freeze
 
-    def normalize_answer_str(val)
+    def normalize_answer_input(val)
       val = val&.strip&.downcase
       val if val && val.length == 5 && val.each_char.all? { |c| VALID_ANSWER_CHARS.include?(c) }
     end
