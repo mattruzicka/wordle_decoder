@@ -35,6 +35,7 @@ PLATFORMS
   arm64-darwin-21
 
 DEPENDENCIES
+  cli-ui (~> 1.5, >= 1.5.1)
   minitest (~> 5.0)
   rake (~> 13.0)
   rubocop (~> 1.21)

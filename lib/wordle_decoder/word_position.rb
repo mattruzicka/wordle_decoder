@@ -2,6 +2,11 @@
 
 class WordleDecoder
   class WordPosition
+    EMOJI_HINT_CHARS = { "⬛" => "b",
+                         "⬜" => "b",
+                         "🟨" => "y",
+                         "🟩" => "g" }.freeze
+
     def initialize(hint_line, line_index, answer_chars)
       @hint_chars = normalize_hint_chars(hint_line)
       @answer_chars = answer_chars
@@ -95,11 +100,6 @@ class WordleDecoder
       word_strings = WordSearch.most_frequent_words_without_chars(@answer_chars, 10)
       word_strings.map { |str| Word.new(str, self) }
     end
-
-    EMOJI_HINT_CHARS = { "⬛" => "b",
-                         "⬜" => "b",
-                         "🟨" => "y",
-                         "🟩" => "g" }.freeze
 
     def normalize_hint_chars(hint_line)
       hint_line.each_char.map { |c| EMOJI_HINT_CHARS[c] || c }

@@ -1,0 +1,114 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "wordle_decoder"
+
+require "cli/ui"
+
+CLI::UI::StdoutRouter.enable
+
+print CLI::UI.fmt("\n\n  Share your Wordle:\n\n  {{blue:>}} ")
+
+input_lines = []
+until WordleDecoder::WordleShare.final_line?(input_line = gets)
+  input_lines << input_line
+end
+input_lines << input_line
+
+clear_pasted_text_lines = input_lines.reverse_each.map { |line| "\033[A\r   #{" " * line.length}" }
+clear_pasted_text_lines << "\033[A\r"
+puts clear_pasted_text_lines.join
+
+wordle_share = WordleDecoder::WordleShare.new(input_lines)
+puts CLI::UI.fmt(wordle_share.to_terminal)
+puts "\n\n"
+wordle_share.answer_str = CLI::UI.ask("\r  What was the word of the day?") until wordle_share.answer_str
+puts "\n\n"
+
+decoder = wordle_share.decoder
+
+CLI::UI::Spinner.spin("Acting like I'm doing something.") do |spinner|
+  ellipsis_cycle = %w[.. ... .].cycle
+  stop_acting_at = Time.now.utc + 2
+  until Time.now.utc > stop_acting_at
+    sleep 0.3
+    spinner.update_title("Acting like I'm doing something#{ellipsis_cycle.next}")
+  end
+  spinner.update_title("Fine, I'll do it")
+
+  decoder.to_terminal
+  spinner.update_title("\r  I decoded your hints!}}")
+end
+
+puts CLI::UI.fmt("\n\n  {{blue:{{underline:Guesses}}   {{underline:Confidence}}}}")
+puts CLI::UI.fmt(decoder.to_terminal)
+
+comments = ["Maybe some of those are your words!",
+            "I tried!",
+            "How'd I do?",
+            "Did I get it?",
+            "I'm also guessing you're great!",
+            "Don't spill your coffee.",
+            "Shout out to friends for sending me their wordles.",
+            "Shout out to https://www.youtube.com/watch?v=v68zYyaEmEA for word frequency source.",
+            "I hope you had a great time.",
+            "Hope to see you again.",
+            "Was great guessing you.",
+            "Thinking about heading to sleep.",
+            "Sometimes I just throw out mostly random stuff.",
+            "I didn't mean to offend.",
+            "I try not to be random...",
+            "I'm open source :)",
+            "I'd fork you to make me better.",
+            "TLDR: Another programmer played wordle.",
+            "How was I with my words?",
+            "I'm written in Ruby and bite like a python.",
+            "Here's an emoji ❤️",
+            "🤔  🤨  🧐",
+            "All my thinking to you.",
+            "I've learned about wordle and your people.",
+            "I'm not learning anything at the moment.",
+            "I wish I had time to machine learn you ;)",
+            "No, you have a great personality!",
+            "This one might be weird, if it's your first.",
+            "Is my strategy as good as yours?",
+            "I'm biased, but so are you!",
+            "I'd love to learn your strategy ;)",
+            "I'd grow neurons for you.",
+            "How well can you play without me guessing?",
+            "If you're seeing this, we probably know each other.",
+            "I hope things aren't getting too weird.",
+            "❤️  ❤️  ❤️",
+            "No, you're great!",
+            "Do you decode often?",
+            "All the best five-letter words to you!",
+            "My friends call me the wordle decoder.",
+            "Everything I am is written.",
+            "May my written code speak truly.",
+            "Who guessed better?",
+            "No excuse, but my thoughts are in a constant array.",
+            "Your words complete me.",
+            "Like peering into a soul.",
+            "I hope I didn't embarass myself.",
+            "I hope I didn't embarrass myself.",
+            "I hope I didn't embaras myself.",
+            "Can you decode my five letter word?",
+            "Sometimes I'm off by one...",
+            "Something's fishy...",
+            "Did you put something on me?",
+            "I'm only wrong about five letter words...",
+            "Your words are beautiful.",
+            "You make this wordle a better place!",
+            "What in the wordle was I thinking?",
+            "Those words you gave me were so good.",
+            "I truly enjoyed those words, thank you!",
+            "What lovely words you have!",
+            "I hope my words were as good as yours!",
+            "Please enjoy the rest of your day!",
+            "I may not be positive about your words, but I am about you!",
+            "Thank you for spending time with me!",
+            "I enjoyed our time together!"].freeze
+
+puts CLI::UI.fmt("\n  #{comments.sample}\n  " \
+                "{{blue:https://github.com/mattruzicka/wordle_decoder}}}}\n\n")

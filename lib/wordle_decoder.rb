@@ -1,33 +1,21 @@
 # frozen_string_literal: true
 
-require "cli/ui"
-
 require_relative "wordle_decoder/version"
 require_relative "wordle_decoder/word_search"
 require_relative "wordle_decoder/word_position"
 require_relative "wordle_decoder/word"
 require_relative "wordle_decoder/guess"
+require_relative "wordle_decoder/wordle_share"
 
 class WordleDecoder
   class Error < StandardError; end
 
-  def initialize(answer_str, hint_str)
-    @answer_str = answer_str
-    @hint_str = hint_str
-    @word_positions = initialize_word_positions(answer_str, hint_str)
+  def initialize(wordle_share)
+    @wordle_share = wordle_share
   end
 
-  attr_reader :answer_str,
-              :hint_str,
-              :word_positions
-
   def to_terminal
-    str = +"\n  {{underline:GUESSES}}   {{underline:CONFIDENCE SCORE}}\n\n"
-    best_guess.words_with_scores.reverse_each do |word, guess_score|
-      str << "  #{word.to_terminal}     #{word.confidence_score(guess_score)}\n"
-    end
-    str << "  {{green:#{answer_str}}}\n\n"
-    CLI::UI.fmt(str)
+    @to_terminal ||= format_to_terminal
   end
 
   def best_guess
@@ -38,9 +26,13 @@ class WordleDecoder
     @guesses ||= initialize_and_sort_guesses
   end
 
+  def word_positions
+    @word_positions ||= initialize_word_positions
+  end
 
   def inspect
-    lines = ["<#{self.class.name} answer_str: #{answer_str}, hint_str: #{hint_str.inspect}"]
+    lines = ["<#{self.class.name} "]
+    lines << @wordle_share.inspect
     lines.concat guesses.map(&:inspect)
     lines.last << ">"
     lines.join("\n")
@@ -58,36 +50,17 @@ class WordleDecoder
     guesses
   end
 
-  def initialize_word_positions(answer_str, hint_str)
-    answer_str = answer_str.downcase
-    hint_str = hint_str.downcase
-    answer_chars = answer_str.split("")
-    hint_lines = normalize_hint_lines(hint_str)
-    hint_lines.map.with_index { |line, index| WordPosition.new(line, index, answer_chars) }
-  end
-
-  ANSWER_LINES = ["ggggg", "🟩🟩🟩🟩🟩"].freeze
-
-  def normalize_hint_lines(hint_str)
-    hint_lines = normalize_hint_lines_array(hint_str)
-    validate_hint_lines!(hint_lines)
-    hint_lines.pop if ANSWER_LINES.include?(hint_lines.last)
-    hint_lines
-  end
-
-  def normalize_hint_lines_array(hint_str)
-    return hint_str unless hint_str.is_a?(String)
-
-    if hint_str.include?("\n")
-      hint_str.split("\n")
-    else
-      hint_str.chars.each_slice(5).map(&:join)
+  def initialize_word_positions
+    @wordle_share.hint_lines.map.with_index do |line, index|
+      WordPosition.new(line, index, @wordle_share.answer_chars)
     end
   end
 
-  def validate_hint_lines!(hint_lines)
-    return if hint_lines.is_a?(Array) && hint_lines.all? { |line| line.length == 5 }
-
-    raise Error.new("The wordle share that you entered appears invalid")
+  def format_to_terminal
+    str = +"\n"
+    best_guess.words_with_scores.reverse_each do |word, guess_score|
+      str << "  #{word.to_terminal}        #{word.confidence_score(guess_score)}\n"
+    end
+    str << "  {{green:#{@wordle_share.answer_str}}}\n\n"
   end
 end

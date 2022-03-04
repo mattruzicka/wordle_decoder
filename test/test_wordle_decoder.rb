@@ -7,7 +7,17 @@ class TestWordleDecoder < Minitest::Test
     refute_nil ::WordleDecoder::VERSION
   end
 
-  def test_it_does_something_useful
-    assert false
+  def test_that_a_wordle_share_can_be_initialized_with_string_input_and_answer
+    string_input = "Wordle 258 3/6\n\n⬛⬛🟨⬛🟨\n⬛🟩🟩🟩⬛\n🟩🟩🟩🟩🟩"
+    share = WordleDecoder::WordleShare.new(string_input, "ahead")
+    assert share.answer_chars == %w[a h e a d]
+    assert share.hint_lines == ["⬛⬛🟨⬛🟨", "⬛🟩🟩🟩⬛"]
+  end
+
+  def test_that_a_wordle_share_can_be_initialized_with_array_input_and_answer
+    array_input = ["Wordle 258 3/6\n", "\n", "⬛⬛🟨⬛🟨\n", "⬛🟩🟩🟩⬛\n", "🟩🟩🟩🟩🟩\n"]
+    share = WordleDecoder::WordleShare.new(array_input, "ahead")
+    assert share.answer_chars == %w[a h e a d]
+    assert share.hint_lines == ["⬛⬛🟨⬛🟨", "⬛🟩🟩🟩⬛"]
   end
 end
