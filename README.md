@@ -1,8 +1,8 @@
 # Wordle Decoder
 
-It guesses your wordle guesses based on all those little 🟨, 🟩, and ⬛ emojis that we now love to share.
+It guesses your guesses based on all those little 🟨, 🟩, and ⬛ emojis that we now love to share.
 
-Given your Wordle emojis/hints and the word of the day, with some degree of confidence, the decoder will spit back the five-letter words it thinks you played.
+Given your Wordle share text, with some degree of confidence, the decoder will spit back the five-letter words it thinks you played.
 
 ## Installation
 
