@@ -10,8 +10,18 @@ CLI::UI::StdoutRouter.enable
 
 print CLI::UI.fmt("\n  Share your wordle:\n\n{{blue:>}} ")
 
+def convert_slack(line)
+  subs = {
+    ":black_large_square:" => "⬛",
+    ":white_large_square:" => "⬜",
+    ":large_green_square:" => "🟩",
+    ":large_yellow_square:" => "🟨",
+  }
+  subs.reduce(line) { |acc, (key, val)| acc.gsub(key, val) }
+end
+
 input_lines = []
-until WordleDecoder::WordleShare.final_line?(input_line = gets)
+until WordleDecoder::WordleShare.final_line?(input_line = convert_slack(gets))
   input_lines << input_line
   if WordleDecoder::WordleShare.exit_program?(input_line)
     puts "\n  Goodbye!\n\n"
