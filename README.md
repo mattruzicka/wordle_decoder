@@ -31,7 +31,7 @@ You'll then be prompted to confirm the word of the day, or if it couldn't figure
 
 I wasn't sure if something like this was possible and thought it'd be a fun project to build. It does a pretty good job, at least some of the time... 
 
----
+I built an excuse to play Wordle.
 
 Enjoy,
 
