@@ -14,10 +14,6 @@ class WordleDecoder
     @wordle_share = wordle_share
   end
 
-  def to_terminal
-    @to_terminal ||= format_to_terminal
-  end
-
   def best_guess
     @best_guess ||= guesses.first
   end
@@ -38,6 +34,14 @@ class WordleDecoder
     lines.join("\n")
   end
 
+  def to_terminal
+    str = +"\n"
+    best_guess.words_with_scores.reverse_each do |word, guess_score|
+      str << "  #{word.to_terminal}        #{word.confidence_score(guess_score)}\n"
+    end
+    str << "  {{green:#{@wordle_share.answer}}}\n"
+  end
+
   private
 
   def initialize_and_sort_guesses
@@ -54,13 +58,5 @@ class WordleDecoder
     @wordle_share.hint_lines.map.with_index do |line, index|
       WordPosition.new(line, index, @wordle_share.answer_chars)
     end
-  end
-
-  def format_to_terminal
-    str = +"\n"
-    best_guess.words_with_scores.reverse_each do |word, guess_score|
-      str << "  #{word.to_terminal}        #{word.confidence_score(guess_score)}\n"
-    end
-    str << "  {{green:#{@wordle_share.answer}}}\n\n"
   end
 end

@@ -8,6 +8,23 @@ class WordleDecoder
       ANSWER_LINES.any? { input_lines.include?(_1) }
     end
 
+    NEEDS_HELP_INPUTS = %w[help what wordle wat ? man okay yes no test].freeze
+
+    def self.needs_help?(input)
+      NEEDS_HELP_INPUTS.include?(input.strip.downcase)
+    end
+
+    EXIT_PROGRAM_INPUTS = %w[exit no nvm].freeze
+
+    def self.exit_program?(input)
+      EXIT_PROGRAM_INPUTS.include?(input.strip)
+    end
+
+    def self.help_to_terminal
+      "\n  {{italic:Copy and paste those 🟨, 🟩, and ⬛" \
+        " emojis from your wordle share.}} \n\n{{blue:>}} "
+    end
+
     def self.wordle_answers
       @wordle_answers ||= load_worldle_ansers
     end
@@ -36,6 +53,8 @@ class WordleDecoder
 
     def find_answer
       title_line = input_lines.detect { |line| line.match?(GAME_DAY_REGEX) }
+      return unless title_line
+
       game_day = title_line.match(GAME_DAY_REGEX).captures.first&.to_i
       self.answer = self.class.wordle_answers[game_day]
     end
