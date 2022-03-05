@@ -6,6 +6,8 @@ Given your Wordle share, the decoder will spit back the five-letter words it thi
 
 ## Installation
 
+Have Ruby 2.7 or later installed, then run the following at the command line:
+
     $ gem install wordle_decoder
 
 ## Usage
