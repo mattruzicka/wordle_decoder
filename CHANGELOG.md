@@ -1,5 +1,5 @@
 ## [Unreleased]
 
-## [0.1.0] - 2022-02-22
+## [0.1.3] - 2022-03-05
 
-- Initial release
+- Support shortcode emojis - https://github.com/mattruzicka/wordle_decoder/pull/1

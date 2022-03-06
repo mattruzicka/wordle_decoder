@@ -8,7 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Matt Ruzicka"]
   spec.license = "CC-BY-NC-SA-2.0"
   spec.summary = "A wordle decoder that guesses your guesses."
-  spec.description = "Given your Wordle share text, with some degree of confidence, the decoder will spit back the five-letter words it thinks you played."
+  spec.description = "Given your Wordle share text, with some degree of confidence," \
+                       "the decoder will spit back the five-letter words it thinks you played."
   spec.homepage = "https://github.com/mattruzicka/wordle_decoder"
   spec.required_ruby_version = ">= 2.6.0"
 
