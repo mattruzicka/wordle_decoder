@@ -2,7 +2,9 @@
 
 class WordleDecoder
   class WordleShare
-    ANSWER_LINES = ["🟩🟩🟩🟩🟩", "ggggg"].freeze
+    ANSWER_LINES = ["🟩🟩🟩🟩🟩",
+                    "ggggg",
+                    ":large_green_square:" * 5].freeze
 
     def self.final_line?(input_lines)
       ANSWER_LINES.any? { input_lines.include?(_1) }
@@ -99,9 +101,19 @@ class WordleDecoder
     VALID_HINT_CHARS = WordPosition::EMOJI_HINT_CHARS.to_a.flatten.uniq
 
     def parse_wordle_lines!
-      input_lines.select do |line|
-        line.each_char.all? { |c| VALID_HINT_CHARS.include?(c) }
+      input_lines.filter_map do |line|
+        line = translate_emoji_shortcodes(line)
+        line if line.each_char.all? { |c| VALID_HINT_CHARS.include?(c) }
       end
+    end
+
+    SHORTCODES_TO_EMOJIS = { ":black_large_square:" => "⬛",
+                             ":white_large_square:" => "⬜",
+                             ":large_green_square:" => "🟩",
+                             ":large_yellow_square:" => "🟨" }.freeze
+
+    def translate_emoji_shortcodes(line)
+      SHORTCODES_TO_EMOJIS.reduce(line) { |acc, (key, val)| acc.gsub(key, val) }
     end
 
     def parse_input_lines!
