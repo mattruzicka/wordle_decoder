@@ -139,4 +139,4 @@ salutations = ["Maybe some of those are your words!",
                "I enjoyed our time together!"].freeze
 
 puts CLI::UI.fmt("\n\n  #{salutations.sample}\n  " \
-                "{{blue:https://github.com/mattruzicka/wordle_decoder}}}}\n\n")
+                 "{{blue:https://github.com/mattruzicka/wordle_decoder}}}}\n\n")

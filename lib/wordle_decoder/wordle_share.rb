@@ -62,7 +62,7 @@ class WordleDecoder
     end
 
     def answer_chars
-      @answer_chars ||= answer&.strip&.split("")
+      @answer_chars ||= answer&.strip&.chars
     end
 
     def hint_lines

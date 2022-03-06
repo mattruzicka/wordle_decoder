@@ -20,7 +20,7 @@ task default: %i[test rubocop]
 task :create_word_search_files do
   sorted_words = load_words_sorted_by_frequency
   most_common_words = sorted_words.pop(3_000)
-  most_common_words, less_common_words = most_common_words.partition { |r| r.split("").uniq.count == 5 }
+  most_common_words, less_common_words = most_common_words.partition { |r| r.chars.uniq.count == 5 }
   File.write(lib_path("most_common_words.txt"), most_common_words.join("\n"))
   File.write(lib_path("less_common_words.txt"), less_common_words.join("\n"))
   File.write(lib_path("least_common_words.txt"), sorted_words.join("\n"))
@@ -29,7 +29,7 @@ end
 task :output_most_common_letters do
   words = load_wordle_words("allowed_answers.txt")
   words.concat load_wordle_words("allowed_guesses.txt")
-  letter_count_tally = words.flat_map { _1.split("") }.tally
+  letter_count_tally = words.flat_map { _1.chars }.tally
   letter_count_tally = letter_count_tally.sort_by { -_2 }
   puts letter_count_tally.first(10).map { _1.first }.join(" ")
 end

@@ -23,7 +23,7 @@ class WordleDecoder
     end
 
     def chars
-      @chars ||= @word_str.split("")
+      @chars ||= @word_str.chars
     end
 
     COMMON_LETTERS = %w[s e a o r i l t n].freeze

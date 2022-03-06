@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'json'
+require "json"
 
 class WordleDecoder
   class WordSearch
