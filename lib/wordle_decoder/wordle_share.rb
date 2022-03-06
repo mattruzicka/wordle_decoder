@@ -102,9 +102,14 @@ class WordleDecoder
 
     def parse_wordle_lines!
       input_lines.filter_map do |line|
-        line = translate_emoji_shortcodes(line)
+        line = normalize_wordle_line(line)
         line if line.each_char.all? { |c| VALID_HINT_CHARS.include?(c) }
       end
+    end
+
+    def normalize_wordle_line(line)
+      line = translate_emoji_shortcodes(line)
+      line.each_grapheme_cluster.map { |cluster| cluster.codepoints.first }.pack("U*")
     end
 
     SHORTCODES_TO_EMOJIS = { ":black_large_square:" => "⬛",
