@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    wordle_decoder (0.1.5)
+    wordle_decoder (0.1.6)
       cli-ui (~> 1.5)
 
 GEM
