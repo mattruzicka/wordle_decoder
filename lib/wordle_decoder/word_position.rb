@@ -5,7 +5,9 @@ class WordleDecoder
     EMOJI_HINT_CHARS = { "⬛" => "b",
                          "⬜" => "b",
                          "🟨" => "y",
-                         "🟩" => "g" }.freeze
+                         "🟦" => "y",
+                         "🟩" => "g",
+                         "🟧" => "g" }.freeze
 
     def initialize(hint_line, line_index, answer_chars)
       @hint_chars = normalize_hint_chars(hint_line)

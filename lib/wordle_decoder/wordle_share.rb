@@ -4,7 +4,9 @@ class WordleDecoder
   class WordleShare
     ANSWER_LINES = ["🟩🟩🟩🟩🟩",
                     "ggggg",
-                    ":large_green_square:" * 5].freeze
+                    ":large_green_square:" * 5,
+                    ":large_orange_square:" * 5,
+                    "🟧🟧🟧🟧🟧"].freeze
 
     def self.final_line?(input_lines)
       ANSWER_LINES.any? { input_lines.include?(_1) }
@@ -115,7 +117,9 @@ class WordleDecoder
     SHORTCODES_TO_EMOJIS = { ":black_large_square:" => "⬛",
                              ":white_large_square:" => "⬜",
                              ":large_green_square:" => "🟩",
-                             ":large_yellow_square:" => "🟨" }.freeze
+                             ":large_yellow_square:" => "🟨",
+                             ":large_orange_square:" => "🟧",
+                             ":large_blue_square:" => "🟦" }.freeze
 
     def translate_emoji_shortcodes(line)
       SHORTCODES_TO_EMOJIS.reduce(line) { |acc, (key, val)| acc.gsub(key, val) }

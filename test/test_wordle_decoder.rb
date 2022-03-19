@@ -43,4 +43,20 @@ class TestWordleDecoder < Minitest::Test
     share = WordleDecoder::WordleShare.new(string_input)
     assert share.hint_lines == ["⬛⬛🟨⬛🟨", "⬛🟩🟩🟩⬛"]
   end
+
+  def test_that_a_wordle_share_can_be_initialized_with_high_contrast_mode_string
+    string_input = "Wordle 273 4/6\n\n⬛⬛⬛⬛⬛\n⬛🟦⬛⬛⬛\n⬛⬛🟧🟧🟧\n🟧🟧🟧🟧🟧"
+    share = WordleDecoder::WordleShare.new(string_input)
+    assert share.hint_lines == ["⬛⬛⬛⬛⬛", "⬛🟦⬛⬛⬛", "⬛⬛🟧🟧🟧"]
+  end
+
+  def test_that_a_wordle_share_can_be_initialized_with_high_contrast_mode_string_of_emoji_shortcodes
+    string_input = "Wordle 273 4/6
+    :black_large_square::black_large_square::black_large_square::black_large_square::black_large_square:
+    :black_large_square::large_blue_square::black_large_square::black_large_square::black_large_square:
+    :black_large_square::black_large_square::large_orange_square::large_orange_square::large_orange_square:
+    :large_orange_square::large_orange_square::large_orange_square::large_orange_square::large_orange_square:"
+    share = WordleDecoder::WordleShare.new(string_input)
+    assert share.hint_lines == ["⬛⬛⬛⬛⬛", "⬛🟦⬛⬛⬛", "⬛⬛🟧🟧🟧"]
+  end
 end
