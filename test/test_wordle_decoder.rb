@@ -65,4 +65,9 @@ class TestWordleDecoder < Minitest::Test
     share = WordleDecoder::WordleShare.new(string_input)
     assert share.hint_lines == ["⬛⬛⬛⬛⬛", "⬛🟩⬛⬛⬛", "⬛🟩🟩🟨⬛", "🟩🟩🟩⬛⬛"]
   end
+
+  def test_that_weird_nonspacing_chars_in_the_final_input_line_are_handled
+    weird_final_input_line = ([129001, 65039] * 5).pack("U*")
+    assert WordleDecoder::WordleShare.final_line?(weird_final_input_line)
+  end
 end
