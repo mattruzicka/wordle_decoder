@@ -70,4 +70,10 @@ class TestWordleDecoder < Minitest::Test
     weird_final_input_line = ([129001, 65039] * 5).pack("U*")
     assert WordleDecoder::WordleShare.final_line?(weird_final_input_line)
   end
+
+  def test_case_where_guess_contains_two_of_same_letter_which_appears_once_in_answer
+    string_input = "🟨🟨🟨⬛⬛\n🟩🟩⬛🟨🟨\n🟩🟩⬛🟩⬛\n🟩🟩🟩🟩🟩"
+    share = WordleDecoder::WordleShare.new(string_input, "lapse")
+    assert share.decoder.best_guess
+  end
 end

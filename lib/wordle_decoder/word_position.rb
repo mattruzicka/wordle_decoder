@@ -145,7 +145,21 @@ class WordleDecoder
       end
 
       def impossible_words(commonality)
-        WordSearch.chars_at_index(@answer_chars, @index, commonality)
+        words = WordSearch.chars_at_index(@answer_chars, @index, commonality)
+        reject_possible_words_where_letter_appears_multiple_times_and_is_in_answer!(words)
+        words
+      end
+
+      private
+
+      def reject_possible_words_where_letter_appears_multiple_times_and_is_in_answer!(words)
+        words.reject! do |word|
+          chars = word.chars
+          index_char = chars[@index]
+          chars.each_with_index.any? do |char, idx|
+            char == index_char && idx != @index && @answer_chars.include?(char)
+          end
+        end
       end
     end
   end
