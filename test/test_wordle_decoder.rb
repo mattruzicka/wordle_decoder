@@ -34,4 +34,13 @@ class TestWordleDecoder < Minitest::Test
     share.find_answer
     assert share.answer_chars == %w[a h e a d]
   end
+
+  def test_that_a_wordle_share_can_be_initialized_with_a_string_of_emoji_shortcodes
+    string_input = "Wordle 258 3/6
+    :black_large_square::black_large_square::large_yellow_square::black_large_square::large_yellow_square:
+    :black_large_square::large_green_square::large_green_square::large_green_square::black_large_square:
+    :large_green_square::large_green_square::large_green_square::large_green_square::large_green_square:"
+    share = WordleDecoder::WordleShare.new(string_input)
+    assert share.hint_lines == ["⬛⬛🟨⬛🟨", "⬛🟩🟩🟩⬛"]
+  end
 end
