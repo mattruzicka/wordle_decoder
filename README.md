@@ -27,6 +27,10 @@ Wordle 258 3/6
 ```
 You'll then be prompted to confirm the word of the day, or if it couldn't figure it out, you'll be asked for it. After that, it'll _try_ to guess your guesses.
 
+## Example
+
+<img width="528" alt="Screen Shot 2022-03-19 at 4 45 59 PM" src="https://user-images.githubusercontent.com/806788/159139538-fc58bc6f-8cfe-44d1-9177-5072e42ea318.png">
+
 ## Why?
 
 I wasn't sure if something like this was possible and thought it'd be a fun project to build. It does a pretty good job, at least some of the time... I built an excuse to play Wordle.
