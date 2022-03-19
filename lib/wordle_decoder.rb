@@ -36,7 +36,7 @@ class WordleDecoder
 
   def to_terminal
     str = +"\n"
-    best_guess.words_with_scores.reverse_each do |word, guess_score|
+    best_guess.best_words_with_scores.reverse_each do |word, guess_score|
       str << "  #{word.to_terminal}        #{word.confidence_score(guess_score)}\n"
     end
     str << "  {{green:#{@wordle_share.answer}}}\n"

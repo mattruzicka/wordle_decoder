@@ -9,19 +9,19 @@ class WordleDecoder
     end
 
     def score
-      @score ||= words_with_scores.sum(&:last)
+      @score ||= best_words_with_scores.sum(&:last)
     end
 
     def word_scores
-      @word_scores ||= words_with_scores.map(&:last)
+      @word_scores ||= best_words_with_scores.map(&:last)
     end
 
     def words
-      @words ||= words_with_scores.map { |w, _s| w.to_s }
+      @words ||= best_words_with_scores.map { |w, _s| w.to_s }
     end
 
-    def words_with_scores
-      @words_with_scores ||= select_words_with_scores
+    def best_words_with_scores
+      @best_words_with_scores ||= select_best_words_with_scores
     end
 
     def inspect
@@ -30,18 +30,7 @@ class WordleDecoder
 
     private
 
-    #
-    # Greatly penalize words that have multiple of the same black letters
-    # Greatly penalize words that have the same black letters as any seen word
-    # Greatly penalize words that have the same yellow letter/index pair as any seen word
-    # Reward words that have yellow letters that match yellow letters in seen words, but in different positions
-    # Reward words that have yellow letters that match green letters in seen words
-    # Penalize words that have yellow letters that don't appear in seen words
-    # Penalize words that have green letters that don't appear in seen words
-    # Rewards words based on commonality
-    # Reward/penalize words based on line indexes and common letters
-    #
-    def select_words_with_scores
+    def select_best_words_with_scores
       selected_words = [@start_word]
       selected_word_scores = [@start_word.score]
       seen_black_chars = @start_word.black_chars
