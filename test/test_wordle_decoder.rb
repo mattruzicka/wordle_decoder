@@ -32,6 +32,6 @@ class TestWordleDecoder < Minitest::Test
     array_input = ["Wordle 258 3/6\n", "\n", "⬛⬛🟨⬛🟨\n", "⬛🟩🟩🟩⬛\n", "🟩🟩🟩🟩🟩\n"]
     share = WordleDecoder::WordleShare.new(array_input)
     share.find_answer
-    assert share.hint_lines == ["⬛⬛🟨⬛🟨", "⬛🟩🟩🟩⬛"]
+    assert share.answer_chars == %w[a h e a d]
   end
 end
