@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name = "wordle_decoder"
   spec.version = WordleDecoder::VERSION
   spec.authors = ["Matt Ruzicka"]
-  spec.license = "CC-BY-NC-SA-2.0"
+  spec.license = "CC-BY-NC-SA-4.0"
   spec.summary = "A wordle decoder that guesses your guesses."
   spec.description = "Given your Wordle share text, with some degree of confidence," \
                      "the decoder will spit back the five-letter words it thinks you played."
