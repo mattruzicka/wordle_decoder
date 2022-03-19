@@ -59,4 +59,10 @@ class TestWordleDecoder < Minitest::Test
     share = WordleDecoder::WordleShare.new(string_input)
     assert share.hint_lines == ["⬛⬛⬛⬛⬛", "⬛🟦⬛⬛⬛", "⬛⬛🟧🟧🟧"]
   end
+
+  def test_that_weird_nonspacing_chars_in_share_strings_are_handled
+    string_input = "Wordle 260 5/6*\n\n⬛️⬛️⬛️⬛️⬛️\n⬛️🟩⬛️⬛️⬛️\n⬛️🟩🟩🟨⬛️\n🟩🟩🟩⬛️⬛️\n🟩🟩🟩🟩🟩"
+    share = WordleDecoder::WordleShare.new(string_input)
+    assert share.hint_lines == ["⬛⬛⬛⬛⬛", "⬛🟩⬛⬛⬛", "⬛🟩🟩🟨⬛", "🟩🟩🟩⬛⬛"]
+  end
 end
