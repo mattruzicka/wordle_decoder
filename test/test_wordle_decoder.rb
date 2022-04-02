@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require 'debug'
 
 class TestWordleDecoder < Minitest::Test
   def test_that_it_has_a_version_number
@@ -74,6 +75,12 @@ class TestWordleDecoder < Minitest::Test
   def test_case_where_guess_contains_two_of_same_letter_which_appears_once_in_answer
     string_input = "🟨🟨🟨⬛⬛\n🟩🟩⬛🟨🟨\n🟩🟩⬛🟩⬛\n🟩🟩🟩🟩🟩"
     share = WordleDecoder::WordleShare.new(string_input, "lapse")
+    assert share.decoder.best_guess
+  end
+
+  def test_that_it_works_when_the_answer_contains_an_x
+    string_input = "⬛⬛⬛⬛⬛\n🟨⬛⬛🟨⬛\n⬛⬛🟨⬛⬛\n⬛🟨⬛⬛⬛\n🟩🟩🟩🟩🟩"
+    share = WordleDecoder::WordleShare.new(string_input, "epoxy")
     assert share.decoder.best_guess
   end
 end

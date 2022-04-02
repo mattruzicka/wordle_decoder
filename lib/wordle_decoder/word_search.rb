@@ -15,11 +15,11 @@ class WordleDecoder
           less_common_letter_to_words_arrays[index][char]
         when :least
           least_common_letter_to_words_arrays[index][char]
-        end
+        end || []
       end
 
       def chars_at_index(chars, index, commonality)
-        chars.uniq.flat_map { |c| char_at_index(c, index, commonality) }
+        chars.uniq.flat_map { |char| char_at_index(char, index, commonality) }
       end
 
       def frequency_score(word)
