@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.1.7] - 2022-04-02
+
+- Don't fail when the answer contains an "x" - https://github.com/mattruzicka/wordle_decoder/issues/5
+
 ## [0.1.6] - 2022-03-20
 
 - Updated license - [58dd8f5](https://github.com/mattruzicka/wordle_decoder/commit/58dd8f50eb1d115236c2b14a25b39e598e6955ec)
